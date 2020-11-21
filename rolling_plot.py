@@ -7,6 +7,14 @@ import getfloat
 
 start_time = time.time()
 
+port = 'COM4'
+baud = 921600
+timeout = 1
+ylower = -2
+yupper = 2
+bufwidth = 623
+
+
 fig, ax = plt.subplots()
 
 x = np.arange(0, 2*np.pi, 0.01)
@@ -17,7 +25,6 @@ xdata, ydata = [0]*623, [0]*623
 #TODO: put initialization (and other parameters) in an init function and call rolling_plot outside of this file
 ser = serial.Serial('COM4', 921600, timeout = 1)
 
-
 def init():  # only required for blitting to give a clean slate.
     line.set_ydata([np.nan] * len(x))
     return line,
@@ -26,18 +33,18 @@ def animate(data):
     #line.set_ydata(np.sin(i/50) )  # update the data.
     t = time.time()-start_time
 
-
     del xdata[0]
     del ydata[0]
     xdata.append(t)
     
     f_arr = getfloat.get_floats(ser,2)
     print (f_arr)
-    #ydata.append(f_arr[0])   #for now, only first element is plotted. add more later
-    ydata.append(np.sin(t*2*np.pi))
+    ydata.append(float(*f_arr[0]))   #for now, only first element is plotted. add more later
+    #ydata.append(np.sin(t*2*np.pi))
     
     ax.relim()
     ax.autoscale_view()
+    
     line.set_data(xdata,ydata)
     return line,
 
