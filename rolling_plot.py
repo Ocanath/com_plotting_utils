@@ -12,15 +12,15 @@ baud = 921600
 timeout = 1
 ylower = -2
 yupper = 2
-bufwidth = 623
-
+bufwidth = 500
+num_lines = 2
 
 fig, ax = plt.subplots()
 
-x = np.arange(0, 2*np.pi, 0.01)
+x = np.arange(0, bufwidth, 1)
 line, = ax.plot(x, np.sin(x))
-ax.set_ylim(-2,2)
-xdata, ydata = [0]*623, [0]*623
+ax.set_ylim(ylower,yupper)
+xdata, ydata = [0]*bufwidth, [0]*bufwidth
 
 #TODO: put initialization (and other parameters) in an init function and call rolling_plot outside of this file
 ser = serial.Serial('COM4', 921600, timeout = 1)
@@ -31,13 +31,14 @@ def init():  # only required for blitting to give a clean slate.
 
 def animate(data):
     #line.set_ydata(np.sin(i/50) )  # update the data.
-    t = time.time()-start_time
+    t = data
 
     del xdata[0]
     del ydata[0]
+    
     xdata.append(t)
     
-    f_arr = getfloat.get_floats(ser,2)
+    f_arr = getfloat.get_floats(ser,num_lines)
     print (f_arr)
     ydata.append(float(*f_arr[0]))   #for now, only first element is plotted. add more later
     #ydata.append(np.sin(t*2*np.pi))
