@@ -12,14 +12,14 @@ baud = 921600
 timeout = 1
 ylower = -2
 yupper = 2
-bufwidth = 500
-num_lines = 2
+bufwidth = 623
+
 
 fig, ax = plt.subplots()
 
-x = np.arange(0, bufwidth, 1)
+x = np.arange(0, 2*np.pi, 0.01)
 line, = ax.plot(x, np.sin(x))
-ax.set_ylim(ylower,yupper)
+ax.set_ylim(-ylower,yupper)
 xdata, ydata = [0]*bufwidth, [0]*bufwidth
 
 #TODO: put initialization (and other parameters) in an init function and call rolling_plot outside of this file
@@ -31,14 +31,13 @@ def init():  # only required for blitting to give a clean slate.
 
 def animate(data):
     #line.set_ydata(np.sin(i/50) )  # update the data.
-    t = data
+    t = time.time()-start_time
 
     del xdata[0]
     del ydata[0]
-    
     xdata.append(t)
     
-    f_arr = getfloat.get_floats(ser,num_lines)
+    f_arr = getfloat.get_floats(ser,2)
     print (f_arr)
     ydata.append(float(*f_arr[0]))   #for now, only first element is plotted. add more later
     #ydata.append(np.sin(t*2*np.pi))
