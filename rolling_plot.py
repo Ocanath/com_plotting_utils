@@ -12,41 +12,54 @@ baud = 921600
 timeout = 1
 ylower = -2
 yupper = 2
-bufwidth = 623
+bufwidth = 500
+num_lines = 10
 
+ser = serial.Serial('COM4', 921600, timeout = 1)    #set up serial port
 
 fig, ax = plt.subplots()
+ax.set_ylim(ylower,yupper)
 
-x = np.arange(0, 2*np.pi, 0.01)
-line, = ax.plot(x, np.sin(x))
-ax.set_ylim(-ylower,yupper)
-xdata, ydata = [0]*bufwidth, [0]*bufwidth
+lines = []
+for i in range(num_lines):
+    lines.append(ax.plot([],[])[0])
 
-#TODO: put initialization (and other parameters) in an init function and call rolling_plot outside of this file
-ser = serial.Serial('COM4', 921600, timeout = 1)
+xbuf = []
+ybuf = []
+for i in range(0,num_lines):
+    xbuf.append([])
+    ybuf.append([])
+for i in range(0, num_lines):
+    for j in range(0,bufwidth):
+        xbuf[i].append(0)
+        ybuf[i].append(0)
 
 def init():  # only required for blitting to give a clean slate.
-    line.set_ydata([np.nan] * len(x))
-    return line,
+    for line in lines:
+       line.set_data([],[])
+    return lines
+
 
 def animate(data):
-    #line.set_ydata(np.sin(i/50) )  # update the data.
-    t = time.time()-start_time
 
-    del xdata[0]
-    del ydata[0]
-    xdata.append(t)
+    t = time.time()-start_time
     
-    f_arr = getfloat.get_floats(ser,2)
-    print (f_arr)
-    ydata.append(float(*f_arr[0]))   #for now, only first element is plotted. add more later
-    #ydata.append(np.sin(t*2*np.pi))
+    f_arr = getfloat.get_floats(ser,num_lines)
+    #print(f_arr) #optional print to console of the floating data we got
     
+    for i in range(0,num_lines):
+        del xbuf[i][0]
+        del ybuf[i][0]
+        xbuf[i].append(t)
+        ybuf[i].append(float(*f_arr[0]))
+
     ax.relim()
     ax.autoscale_view()
+
+    for i, line in enumerate(lines):
+        line.set_data(xbuf[i],ybuf[i])
     
-    line.set_data(xdata,ydata)
-    return line,
+    return lines
 
 
 ani = animation.FuncAnimation(
