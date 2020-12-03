@@ -12,24 +12,17 @@ baud = 921600
 timeout = 1
 ylower = -2
 yupper = 2
-bufwidth = 100
+bufwidth = 500
 num_lines = 10
 
+#ser = serial.Serial('COM4', 921600, timeout = 1)    #set up serial port
+
 fig, ax = plt.subplots()
-
-x = np.arange(0, bufwidth, 1)
-#line, = ax.plot([], [])
-
-#line, = ax.plot(x, np.sin(x))
-#lines.append(ax.plot(x,np.sin(x)))
-
-#line1, = ax.plot(x,np.sin(x))
-#line2, = ax.plot(x,np.sin(x))
-lines = []
-for i in range(0,num_lines):
-    lines.append(ax.plot(x,np.sin(x)))
-
 ax.set_ylim(ylower,yupper)
+
+lines = []
+for i in range(num_lines):
+    lines.append(ax.plot([],[])[0])
 
 xbuf = []
 ybuf = []
@@ -41,11 +34,11 @@ for i in range(0, num_lines):
         xbuf[i].append(0)
         ybuf[i].append(0)
 
-#def init():  # only required for blitting to give a clean slate.
-    #for i in lines:
-    #   lines[i].set_data(x,np.sin(x))
-    #return line,
-    
+def init():  # only required for blitting to give a clean slate.
+    for line in lines:
+       line.set_data([],[])
+    return lines
+
 
 def animate(data):
 
@@ -60,15 +53,14 @@ def animate(data):
     ax.relim()
     ax.autoscale_view()
 
-    #line.set_data(xbuf[0],ybuf[0])
-    for i in range(0,num_lines):
-        line, = lines[i]
+    for i, line in enumerate(lines):
         line.set_data(xbuf[i],ybuf[i])
-        
+    
+    return lines
 
 
 ani = animation.FuncAnimation(
-    fig, animate, interval=2, blit=False, save_count=10)
+    fig, animate, init_func=init, interval=2, blit=True, save_count=50)
 
 # To save the animation, use e.g.
 #
