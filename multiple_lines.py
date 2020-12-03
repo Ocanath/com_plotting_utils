@@ -19,12 +19,15 @@ fig, ax = plt.subplots()
 
 x = np.arange(0, bufwidth, 0.01)
 #line, = ax.plot([], [])
-line, = ax.plot(x, np.sin(x))
-#lines = []
+
+#line, = ax.plot(x, np.sin(x))
 #lines.append(ax.plot(x,np.sin(x)))
-#for i in range(0,num_lines):
-#	lobj = ax.plot(x,np.sin(x))
-#	lines.append(lobj)
+
+#line1, = ax.plot(x,np.sin(x))
+#line2, = ax.plot(x,np.sin(x))
+lines = []
+for i in range(0,num_lines):
+	lines.append(ax.plot(x,np.sin(x)))
 
 ax.set_ylim(ylower,yupper)
 
@@ -38,12 +41,14 @@ for i in range(0, num_lines):
 		xbuf[i].append(0)
 		ybuf[i].append(0)
 
-def init():  # only required for blitting to give a clean slate.
+#def init():  # only required for blitting to give a clean slate.
 	#for i in lines:
 	#	lines[i].set_data(x,np.sin(x))
-	return line,
+	#return line,
+	
 
 def animate(data):
+
 	t = time.time()-start_time
 
 	del xbuf[0][0]
@@ -59,16 +64,20 @@ def animate(data):
 	ax.relim()
 	ax.autoscale_view()
 
-	line.set_data(xbuf[0],ybuf[0])
+	#line.set_data(xbuf[0],ybuf[0])
+	for i in range(0,num_lines):
+		line, = lines[i]
+		line.set_data(xbuf[i],ybuf[i])
+		
 	#for i in range(0,num_lines):
 	#	lines[i].set_data(xbuf[lnum],ybuf[lnum])
 	#lines[0].set_data(xbuf[0],ybuf[0])
-	
-	return line,
+
+	#return line,
 
 
 ani = animation.FuncAnimation(
-    fig, animate, init_func=init, interval=2, blit=True, save_count=50)
+    fig, animate, interval=2, blit=False, save_count=50)
 
 # To save the animation, use e.g.
 #
