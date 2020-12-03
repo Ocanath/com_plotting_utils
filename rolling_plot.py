@@ -19,8 +19,8 @@ fig, ax = plt.subplots()
 
 x = np.arange(0, 2*np.pi, 0.01)
 line, = ax.plot(x, np.sin(x))
-ax.set_ylim(-2,2)
-xdata, ydata = [0]*623, [0]*623
+ax.set_ylim(-ylower,yupper)
+xdata, ydata = [0]*bufwidth, [0]*bufwidth
 
 #TODO: put initialization (and other parameters) in an init function and call rolling_plot outside of this file
 ser = serial.Serial('COM4', 921600, timeout = 1)
