@@ -10,17 +10,23 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.settimeout(0.0) #make non blocking
 server_socket.bind(udp_server_addr)
 
+def recv_floatarray_pkt(soc):
+	arr = np.array([])
+	try:
+		pkt,addr = soc.recvfrom(bufsize)
+
+		for i in range(0,int(len(pkt)/4)):
+			val = struct.unpack('<f',pkt[i*4:int(i*4+4)])
+			arr = np.append(arr,val)
+	except:
+		pass
+	return arr
+
 try:
 	while(1):
-		try:
-			pkt,addr = server_socket.recvfrom(bufsize)
-			arr = []
-			for i in range(0,int(len(pkt)/4)):
-				val = struct.unpack('<f',pkt[i*4:int(i*4+4)])
-				arr.append(val)
+		arr = recv_floatarray_pkt(server_socket)
+		if(len(arr)>0):
 			print(arr)
-		except:
-			pass
 		# time.sleep(1)	#socket queues up received packets
 except KeyboardInterrupt:
 	pass

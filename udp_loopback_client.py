@@ -1,6 +1,7 @@
 import socket
 import time
 import struct 
+import numpy as np
 
 udp_server_addr = ("127.0.0.1", 4537)
 bufsize = 512
@@ -9,11 +10,11 @@ client_socket.settimeout(0.0) #make non blocking
 
 
 try:
-	i = 0
+	
 	start_time = time.time()
 	while(1):
 		t = time.time()-start_time
-		arr = [t, i]
+		arr = [t, np.sin(t*2*np.pi/4+1),np.sin(t*2*np.pi/4+2), np.sin(t*2*np.pi/4+3) ]
 		
 		barr = []
 		for i in range(0,len(arr)):
@@ -31,7 +32,10 @@ try:
 			uparr.append(val)
 		print(uparr)
 		
-		time.sleep(0.3)
-		i = i + 1
+		time.sleep(0.01)
+		
+		
+		
+		
 except KeyboardInterrupt:
 	pass
