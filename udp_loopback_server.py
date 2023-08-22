@@ -40,6 +40,7 @@ def printloop(discard):
 			if(event.is_set()):
 				print(udp_pkt)
 				event.clear()
+			time.sleep(1)
 	except KeyboardInterrupt:
 		pass
 
