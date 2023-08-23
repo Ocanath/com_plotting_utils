@@ -5,7 +5,8 @@ import time
 import struct 
 
 udp_pkt = np.zeros(2)
-event = threading.Event()
+udp_rdy_evt = threading.Event()
+kill_sig = threading.Event()
 
 def recv_floatarray_pkt(soc):
 	arr = np.array([])
@@ -19,32 +20,36 @@ def recv_floatarray_pkt(soc):
 		pass
 	return arr
 
+
 def readloop(soc):
 	global udp_pkt
-	global event
-	try:
-		while(1):
-			arr = recv_floatarray_pkt(server_socket)
-			if(len(arr)>0 and (event.is_set() == False)):	
-				udp_pkt = arr
-				event.set()
-			# time.sleep(1)	#socket queues up received packets
-	except KeyboardInterrupt:
-		pass
+	global udp_rdy_evt
+	global kill_sig
+	
+	while(kill_sig.is_set()):
+		arr = recv_floatarray_pkt(server_socket)
+		if(len(arr)>0 and (udp_rdy_evt.is_set() == False)):	
+			udp_pkt = arr
+			udp_rdy_evt.set()
+
 	
 def printloop(discard):
 	global udp_pkt
-	global event
-	try: 
-		while(1):
-			if(event.is_set()):
-				print(udp_pkt)
-				event.clear()
-			time.sleep(1)
-	except KeyboardInterrupt:
-		pass
+	global udp_rdy_evt
+	global kill_sig
+	
+	while(kill_sig.is_set()):
+		if(udp_rdy_evt.is_set()):
+			print(udp_pkt)
+			udp_rdy_evt.clear()
+		# time.sleep(1)
 
-
+def kill_thread():
+	global kill_sig
+	kill_sig.set()
+	input()
+	kill_sig.clear()
+	
 if __name__ == "__main__":
 
 	udp_server_addr = ("127.0.0.1", 4537)
@@ -53,13 +58,15 @@ if __name__ == "__main__":
 	server_socket.settimeout(0.0) #make non blocking
 	server_socket.bind(udp_server_addr)
 
-
+	t0 = threading.Thread(target=kill_thread)
 	t1 = threading.Thread(target=readloop, args=(server_socket,))
 	t2 = threading.Thread(target=printloop, args=(0,))
 
+	t0.start()
 	t1.start()
 	t2.start()
-	
+	   
+	t0.join()
 	t1.join()
 	t2.join()
 	
